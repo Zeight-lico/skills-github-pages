@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算一算</title>
+
+    <style>
+body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            position: relative; /* 设置 body 为相对定位 */
+        }
+        .text-container {
+            position: absolute; /* 绝对定位 */
+            left: 20px; /* 距离左侧 20px */
+            bottom: 20px; /* 距离底部 20px */
+            font-size: 20px;
+            color: #999; /* 灰色文字 */
+            text-align: left; /* 文字左对齐 */
+        }
+        .container {
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px; /* 上下盒子之间的间距 */
+        }
+        
+        input[type="number"] {
+            width: 90%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none; /* 移除默认的聚焦边框 */
+            transition: border-color 0.3s ease, background-color 0.3s ease; /* 添加过渡效果 */
+        }
+        input[type="number"]:focus {
+            border-color: #000000; /* 聚焦时边框颜色变为黑色 */
+            background-color: #f9f9f9; /* 聚焦时背景色变亮 */
+        }
+        input[type="number"]::placeholder {
+            color: #999; /* 占位符文字颜色 */
+            font-style: italic; /* 占位符文字斜体 */
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-align: left;
+            transition: background-color 0.3s ease, transform 0.3s ease; /* 添加过渡效果 */
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <!-- 文字显示区域 -->
+<div class="text-container" id="randomText"></div>
+
+<div class="container">
+    <input type="number" id="inputNumber" placeholder=" " onkeypress="handleKeyPress(event)">
+    <div class="output">
+        结果：
+        <span id="outputResult"></span>
+    </div>
+</div>
+
+<script>
+
+// 定义文字数组，可以自行添加或修改
+const texts = [
+        "你感到有个邪恶的东西在看着你…",
+"你觉得周围的气氛越来越压抑…",
+"你感到地下有恐怖的尖叫声…",
+"空气中弥漫着硫磺的味道…",
+"丛林变得躁动不安…",
+"你觉得周围的空气越来越冷…",
+"太阳的气息正在消失…",
+"你觉得空气中充满了电…",
+"你觉得周围的空气变得粘稠…",
+"你听到远处传来咆哮声…",
+"你觉得地下有东西在蠕动…",
+"你觉得周围的空气变得灼热…",
+"你觉得周围的空气变得冰冷…",
+"你觉得周围的空气变得沉重…",
+"你觉得周围的空气变得轻盈…",
+"你觉得周围的空气变得狂暴…",
+"你觉得周围的空气变得宁静…",
+"你觉得周围的空气变得诡异…",
+"你觉得周围的空气变得神圣…",
+"你觉得周围的空气变得腐化…",
+"你觉得周围的空气变得猩红…",
+"你觉得周围的空气变得混乱…",
+"你觉得周围的空气变得有序…",
+"你觉得周围的空气变得危险…",
+"你觉得周围的空气变得安全…",
+"你觉得周围的空气变得陌生…",
+"你觉得周围的空气变得熟悉…",
+"你觉得周围的空气变得神秘…",
+"你觉得周围的空气变得平凡…",
+"你觉得周围的空气变得不平凡…",
+"你感到一股寒意从背后袭来…",
+"你感觉到地面在微微震动…",
+"你听到远处传来低沉的咆哮…",
+"你觉得空气中充满了不祥的气息…",
+"你感到一股强大的力量正在苏醒…",
+"你觉得周围的空气变得异常安静…",
+"你感到一股邪恶的力量正在逼近…",
+"你觉得周围的空气变得灼热难耐…",
+"你感到一股冰冷的气息笼罩着你…",
+"你觉得周围的空气变得沉重而压抑…",
+"你感到一股神秘的力量在召唤你…",
+"你觉得周围的空气变得轻盈而自由…",
+"你感到一股狂暴的能量在四周涌动…",
+"你觉得周围的空气变得宁静而平和…",
+"你感到一股诡异的气息在空气中弥漫…",
+"你觉得周围的空气变得神圣而庄严…",
+"你感到一股腐化的力量正在侵蚀一切…",
+"你觉得周围的空气变得猩红而血腥…",
+"你感到一股混乱的力量在四处蔓延…",
+"你觉得周围的空气变得有序而稳定…",
+"你感到一股危险的气息正在逼近…",
+"你觉得周围的空气变得安全而温暖…",
+"你感到一股陌生的力量在影响着你…",
+"你觉得周围的空气变得熟悉而亲切…",
+"你感到一股神秘的力量在引导着你…",
+"你觉得周围的空气变得平凡而无奇…",
+"你感到一股不平凡的力量正在觉醒…",
+"你感到一股强大的敌意正在靠近…",
+"你觉得周围的空气变得紧张而压抑…",
+"你感到一股未知的力量正在改变世界…",
+"你感到一股黑暗的力量正在蔓延…",
+"你觉得周围的空气变得阴冷而潮湿…",
+"你感到一股古老的力量正在苏醒…",
+"你觉得周围的空气变得炽热而干燥…",
+"你感到一股神秘的能量在空气中流动…",
+"你觉得周围的空气变得狂暴而不可控…",
+"你感到一股神圣的光芒在照耀着你…",
+"你觉得周围的空气变得腐化而扭曲…",
+"你感到一股猩红的气息在四处扩散…",
+"你觉得周围的空气变得混乱而无序…",
+"你感到一股秩序的力量在稳定一切…",
+"你觉得周围的空气变得危险而致命…",
+"你感到一股安全的庇护在笼罩着你…",
+"你觉得周围的空气变得陌生而新奇…",
+"你感到一股熟悉的力量在呼唤着你…",
+"你觉得周围的空气变得神秘而深邃…",
+"你感到一股平凡的气息在回归自然…",
+"你觉得周围的空气变得不平凡而独特…",
+"你感到一股寒意从脚底升起…",
+"你觉得地面在微微颤抖…",
+"你听到远处传来低语声…",
+"你觉得空气中充满了恐惧…",
+"你感到一股强大的敌意正在逼近…",
+"你觉得周围的空气变得紧张而压抑…",
+"你感到一股未知的力量正在改变世界…",
+"你感到一股黑暗的力量正在吞噬一切…",
+"你觉得周围的空气变得阴冷而刺骨…",
+"你感到一股古老的力量正在觉醒…",
+"你觉得周围的空气变得炽热而灼人…",
+"你感到一股神秘的能量在空气中流动…",
+"你觉得周围的空气变得狂暴而混乱…",
+"你感到一股神圣的光芒在照耀着你…",
+"你觉得周围的空气变得腐化而扭曲…",
+"你感到一股猩红的气息在四处扩散…",
+"你觉得周围的空气变得混乱而无序…",
+"你感到一股秩序的力量在稳定一切…",
+"你觉得周围的空气变得危险而致命…",
+"你感到一股安全的庇护在笼罩着你…",
+"你觉得周围的空气变得陌生而新奇…",
+"你感到一股熟悉的力量在呼唤着你…",
+"你觉得周围的空气变得神秘而深邃…",
+"你感到一股平凡的气息在回归自然…",
+"你觉得周围的空气变得不平凡而独特…",
+"你感到一股寒意从脚底升起…",
+"你觉得地面在微微颤抖…",
+"你听到远处传来低语声…",
+"你觉得空气中充满了恐惧…",
+"你感到一股强大的敌意正在逼近…",
+"你觉得周围的空气变得紧张而压抑…",
+"你感到一股未知的力量正在改变世界…",
+    ];
+
+    // 随机选择一段文字
+    function getRandomText() {
+        const randomIndex = Math.floor(Math.random() * texts.length);
+        return texts[randomIndex];
+    }
+
+
+// 获取文字显示区域
+const randomTextElement = document.getElementById("randomText");
+
+// 初始化显示一段随机文字
+randomTextElement.textContent = getRandomText();
+
+// 监听页面点击事件
+document.addEventListener("click", () => {
+    randomTextElement.textContent = getRandomText(); // 点击页面时更换文字
+});
+
+    // 页面原始的标题
+    const originalTitle = document.title;
+
+// 离开页面时显示的标题
+const hiddenTitle = "别走啊，快回来！";
+
+// 监听页面可见性变化
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        // 页面不可见时（用户切换到其他标签页或最小化浏览器）
+        document.title = hiddenTitle;
+    } else {
+        // 页面重新可见时
+        document.title = originalTitle;
+    }
+});
+
+// 获取输入框和容器
+const inputNumber = document.getElementById("inputNumber");
+    const container = document.querySelector(".container");
+
+    // 监听整个页面的点击事件
+    document.addEventListener("click", (event) => {
+        // 判断点击的位置是否在容器外部
+        if (!container.contains(event.target)) {
+            inputNumber.focus(); // 如果点击在容器外部，聚焦到输入框
+        }
+    });
+
+    function handleKeyPress(event) {
+        // 检查是否按下了回车键（Enter 键的 keyCode 是 13）
+        if (event.keyCode === 13) {
+            calculate();
+        }
+    }
+
+    function calculate() {
+        // 获取输入框的值
+        var input = document.getElementById("inputNumber").value;
+        
+        // 将输入的值转换为浮点数
+        var number = parseFloat(input);
+        
+        // 检查输入是否为有效数字
+        if (isNaN(number)) {
+            alert("倒是说个数啊！");
+            return;
+        }
+        
+        // 计算结果
+        var result = number * 0.8695653;
+        
+        // 显示结果
+        document.getElementById("outputResult").textContent = result.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
